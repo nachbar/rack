@@ -58,7 +58,15 @@ module Rack
     # ParameterTypeError is raised. Users are encouraged to return a 400 in this
     # case.
     def parse_nested_query(qs, d = nil)
-      return {} if qs.nil? || qs.empty?
+      # JMN - get error "Rack::QueryParser::InvalidParameterError (invalid byte sequence in UTF-8):" while uploading a file
+      # This is a binary gzip'ed file, so not even UTF-8
+      # it appears to be a the check for nil? or empty?
+      # rather than bombing, it looks like this is trying to return an empty hash if the string is empty, so let's do that
+      begin
+        return {} if qs.nil? || qs.empty?
+      rescue
+        return {}
+      end
       params = make_params
 
       (qs || '').split(d ? (COMMON_SEP[d] || /[#{d}] */n) : DEFAULT_SEP).each do |p|

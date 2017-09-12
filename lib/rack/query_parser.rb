@@ -77,6 +77,13 @@ module Rack
 
       return params.to_params_hash
     rescue ArgumentError => e
+      # JMN - now getting Rack::QueryParser::InvalidParameterError (invalid %-encoding 
+      # apparently, sending routine using Indy is not setting Content-Type - see comment at https://stackoverflow.com/a/15770203/2605742
+      # https://stackoverflow.com/questions/15769681/rails-rack-argumenterror-invalid-encoding-for-post-data
+      # "I think Rack also assumes the request is x-www-form-urlencoded if it is a POST and there is no Content-Type header"
+      #
+      # until I can get all users upgraded, let's ignore this error
+      return {} if e.message.include? 'invalid %-encoding'
       raise InvalidParameterError, e.message
     end
 

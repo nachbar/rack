@@ -82,8 +82,8 @@ module Rack
       # https://stackoverflow.com/questions/15769681/rails-rack-argumenterror-invalid-encoding-for-post-data
       # "I think Rack also assumes the request is x-www-form-urlencoded if it is a POST and there is no Content-Type header"
       #
-      # until I can get all users upgraded, let's ignore this error
-      return {} if e.message.include? 'invalid %-encoding'
+      # until I can get all users upgraded, let's ignore this error (also invalid byte sequence)
+      return {} if (e.message.include?('invalid %-encoding') || e.message.include?('invalid byte sequence'))
       raise InvalidParameterError, e.message
     end
 
